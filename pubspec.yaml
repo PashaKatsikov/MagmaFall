@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.12.2
@@ -31,11 +31,34 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+
+  # WebView (gray portal + in-game legal pages)
   webview_flutter: ^4.13.0
+  webview_flutter_android: ^4.11.0
+
+  # Local persistence
   shared_preferences: ^2.5.3
+  flutter_secure_storage: ^10.0.0
+
+  # Networking + device fingerprint for real-browser User-Agent
+  http: ^1.4.0
+  connectivity_plus: ^6.1.5
+  device_info_plus: ^11.4.0
+  url_launcher: ^6.3.2
+  package_info_plus: ^8.3.1
+
+  # Attribution + remote decisioning
+  appsflyer_sdk: ^6.16.2
+
+  # Firebase (messaging / integrity) — configured once google-services.json lands
+  firebase_core: ^3.15.0
+  firebase_messaging: ^15.2.10
+  firebase_app_check: ^0.3.2+10
+  flutter_local_notifications: ^18.0.1
+
+  # File chooser for the portal WebView (pin below 10.x — Kotlin-only KGP clash)
+  file_picker: ^8.1.4
 
 dev_dependencies:
   flutter_test:
@@ -66,9 +89,9 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/icon.jpg"
+  image_path: "assets/icon_2.png"
   adaptive_icon_background: "#1A0D08"
-  adaptive_icon_foreground: "assets/icon.jpg"
+  adaptive_icon_foreground: "assets/icon_2.png"
   min_sdk_android: 21
 
   # An image asset can refer to one or more resolution-specific "variants", see
