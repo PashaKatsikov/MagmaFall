@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Use the full artwork on both layers with no inset so the adaptive icon
+       is edge-to-edge with no empty borders after the launcher mask. -->
+  <background android:drawable="@drawable/ic_launcher_foreground"/>
+  <foreground android:drawable="@drawable/ic_launcher_foreground"/>
+</adaptive-icon>
