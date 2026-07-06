@@ -250,11 +250,21 @@ class _PortalViewState extends State<PortalView> with WidgetsBindingObserver {
 (function(){
   if (window.__mfSa) return; window.__mfSa = true;
   var ID='__mfSaStyle';
-  var CSS=':root{--safe-area-inset-top:0px!important;--safe-area-inset-right:0px!important;'+
-    '--safe-area-inset-bottom:0px!important;--safe-area-inset-left:0px!important;'+
-    '--sat:0px!important;--sar:0px!important;--sab:0px!important;--sal:0px!important;}'+
-    'html,body,#app,#root,#__nuxt,#__layout{padding-top:0!important;'+
-    'padding-left:0!important;padding-right:0!important;margin-top:0!important;}';
+  var CSS=
+    // Zero out safe-area CSS variables so sites using env(safe-area-inset-*)
+    // don't leave empty notch bars. We do NOT touch padding/margin on html,
+    // body, #app, #root — the site's own layout must be preserved.
+    ':root{' +
+      '--safe-area-inset-top:0px!important;' +
+      '--safe-area-inset-right:0px!important;' +
+      '--safe-area-inset-bottom:0px!important;' +
+      '--safe-area-inset-left:0px!important;' +
+      '--sat:0px!important;--sar:0px!important;' +
+      '--sab:0px!important;--sal:0px!important;' +
+    '}' +
+    // Only strip padding-top from known shell-wrapper elements, not from
+    // html/body/#app where the site may rely on its own padding for layout.
+    '.gameview-mobile-header,.app-header{padding-top:0!important;margin-top:0!important;}';
   function kbOpen(){ if(!window.visualViewport) return false;
     return window.visualViewport.height < window.innerHeight*0.75; }
   function apply(){
