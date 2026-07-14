@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../bridge/insight.dart';
 import '../game/game_screen.dart';
 import '../services/progress_service.dart';
 import '../theme.dart';
@@ -16,6 +17,12 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Insight.screen('menu');
+  }
+
   Future<void> _play() async {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const GameScreen()),

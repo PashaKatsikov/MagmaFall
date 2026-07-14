@@ -1,9 +1,11 @@
+import 'package:clarity_flutter/clarity_flutter.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'bridge/insight.dart';
 import 'crust/boot_gate.dart';
 import 'forge/attribution_desk.dart';
 import 'forge/gate_caller.dart';
@@ -46,12 +48,15 @@ Future<void> main() async {
   final signals = SignalCenter(store);
 
   runApp(
-    MagmaFallApp(
-      store: store,
-      link: link,
-      attribution: attribution,
-      gate: gate,
-      signals: signals,
+    ClarityWidget(
+      clarityConfig: Insight.config,
+      app: MagmaFallApp(
+        store: store,
+        link: link,
+        attribution: attribution,
+        gate: gate,
+        signals: signals,
+      ),
     ),
   );
 }

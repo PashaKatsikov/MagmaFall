@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../app_assets.dart';
 import '../ash/flow_stage.dart';
+import '../bridge/insight.dart';
 import '../forge/attribution_desk.dart';
 import '../forge/gate_caller.dart';
 import '../forge/link_sensor.dart';
@@ -48,6 +49,7 @@ class _BootGateState extends State<BootGate> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    Insight.screen('loading');
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     _dots = AnimationController(
       vsync: this,
@@ -93,6 +95,7 @@ class _BootGateState extends State<BootGate> with TickerProviderStateMixin {
 
   Future<void> _firstLaunch() async {
     if (!await widget.link.online) {
+      Insight.event('route_offline');
       _goOffline();
       return;
     }
@@ -108,13 +111,29 @@ class _BootGateState extends State<BootGate> with TickerProviderStateMixin {
       locale: _locale(),
       pushToken: widget.signals.token,
     );
+
+    Insight.identify(
+      body['af_id']?.toString(),
+      tags: {
+        'af_status': body['af_status']?.toString() ?? '',
+        'media_source': body['media_source']?.toString() ?? '',
+        'campaign': body['campaign']?.toString() ?? '',
+        'os': body['os']?.toString() ?? '',
+        'locale': body['locale']?.toString() ?? '',
+      },
+    );
+
     final reply = await widget.gate.ask(body);
 
     if (reply.ok && reply.hasUrl) {
+      Insight.tag('run_mode', 'web');
+      Insight.event('route_web');
       await widget.store.writeStage(FlowStage.web);
       await _seal();
       _openPortal(reply.url!);
     } else {
+      Insight.tag('run_mode', 'native');
+      Insight.event('route_native');
       await widget.store.writeStage(FlowStage.native);
       await _bootGame();
     }
@@ -122,6 +141,7 @@ class _BootGateState extends State<BootGate> with TickerProviderStateMixin {
 
   Future<void> _returningWeb() async {
     if (!await widget.link.online) {
+      Insight.event('route_offline');
       await _seal();
       _goOffline();
       return;
@@ -129,6 +149,8 @@ class _BootGateState extends State<BootGate> with TickerProviderStateMixin {
 
     final coldPush = await widget.store.takeColdPushUrl();
     if (coldPush != null) {
+      Insight.tag('run_mode', 'web');
+      Insight.event('route_push_link');
       await _seal();
       _openPortal(coldPush);
       return;
@@ -147,14 +169,31 @@ class _BootGateState extends State<BootGate> with TickerProviderStateMixin {
       locale: _locale(),
       pushToken: widget.signals.token,
     );
+
+    Insight.identify(
+      body['af_id']?.toString(),
+      tags: {
+        'af_status': body['af_status']?.toString() ?? '',
+        'media_source': body['media_source']?.toString() ?? '',
+        'campaign': body['campaign']?.toString() ?? '',
+        'os': body['os']?.toString() ?? '',
+        'locale': body['locale']?.toString() ?? '',
+      },
+    );
+
     final reply = await widget.gate.ask(body);
     await _seal();
 
     if (reply.ok && reply.hasUrl) {
+      Insight.tag('run_mode', 'web');
+      Insight.event('route_web');
       _openPortal(reply.url!);
     } else if (cached != null) {
+      Insight.tag('run_mode', 'web');
+      Insight.event('route_cached_link');
       _openPortal(cached);
     } else {
+      Insight.event('route_offline');
       _goOffline();
     }
   }
@@ -201,6 +240,14 @@ class _BootGateState extends State<BootGate> with TickerProviderStateMixin {
         portalUrl: url,
       ));
     } else {
+      Insight.tag(
+        'notif_permission',
+        widget.store.pulseAllowed
+            ? 'granted'
+            : widget.store.pulseHardDenied
+                ? 'os_denied'
+                : 'snoozed',
+      );
       _swap(PortalView(
         url: url,
         store: widget.store,

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../bridge/insight.dart';
 import '../forge/attribution_desk.dart';
 import '../forge/gate_caller.dart';
 import '../forge/link_sensor.dart';
@@ -36,9 +37,12 @@ class PulsePrompt extends StatefulWidget {
 
 class _PulsePromptState extends State<PulsePrompt> {
   bool _leaving = false;
+  bool _screenTracked = false;
 
   Future<void> _accept() async {
     if (_leaving) return;
+
+    Insight.event('push_invite_accept');
 
     // Wire up the token reporter before asking for permission.
     // BootGate is already gone at this point (pushReplacement), so we install
@@ -46,6 +50,9 @@ class _PulsePromptState extends State<PulsePrompt> {
     widget.signals.onTokenRotated = _reportToken;
 
     final granted = await widget.signals.askPermission();
+    Insight.tag('notif_permission', granted ? 'granted' : 'denied');
+    Insight.event(granted ? 'push_granted' : 'push_denied');
+
     if (!granted) {
       final until = DateTime.now().millisecondsSinceEpoch ~/ 1000 +
           RuntimeConfig.pulseSnoozeSeconds;
@@ -66,6 +73,8 @@ class _PulsePromptState extends State<PulsePrompt> {
 
   Future<void> _skip() async {
     if (_leaving) return;
+    Insight.event('push_invite_skip');
+    Insight.tag('notif_permission', 'skipped');
     final until = DateTime.now().millisecondsSinceEpoch ~/ 1000 +
         RuntimeConfig.pulseSnoozeSeconds;
     await widget.store.writePulseSnooze(until);
@@ -91,6 +100,10 @@ class _PulsePromptState extends State<PulsePrompt> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_screenTracked) {
+      _screenTracked = true;
+      Insight.screen('push_invite');
+    }
     final size = MediaQuery.of(context).size;
     final landscape =
         MediaQuery.of(context).orientation == Orientation.landscape;

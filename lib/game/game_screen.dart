@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../app_assets.dart';
+import '../bridge/insight.dart';
 import '../services/progress_service.dart';
 import '../theme.dart';
 import 'game_painter.dart';
@@ -28,6 +29,7 @@ class _GameScreenState extends State<GameScreen>
   @override
   void initState() {
     super.initState();
+    Insight.screen('game');
     _bestScore = ProgressService.instance.bestScore;
     _ticker = createTicker(_onTick);
   }
@@ -56,6 +58,9 @@ class _GameScreenState extends State<GameScreen>
     _bestScore = ProgressService.instance.bestScore;
     _newBest = await ProgressService.instance.submitScore(_finalScore);
     if (_newBest) _bestScore = _finalScore;
+    Insight.event('game_over');
+    Insight.tag('game_score', '$_finalScore');
+    if (_newBest) Insight.event('game_new_best');
     if (mounted) setState(() {});
   }
 

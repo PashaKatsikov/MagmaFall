@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../bridge/insight.dart';
+
 /// Shown when the portal path has no connection. Uses the project's custom
 /// full-screen artwork (orientation aware) with an ember Retry button.
 class OfflineView extends StatefulWidget {
@@ -20,6 +22,7 @@ class _OfflineViewState extends State<OfflineView>
   @override
   void initState() {
     super.initState();
+    Insight.screen('offline');
     _breath = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -34,6 +37,7 @@ class _OfflineViewState extends State<OfflineView>
 
   Future<void> _retry() async {
     if (_busy) return;
+    Insight.event('offline_retry');
     setState(() => _busy = true);
     await Future.delayed(const Duration(milliseconds: 700));
     if (!mounted) return;
